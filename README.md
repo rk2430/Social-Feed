@@ -1,56 +1,42 @@
 # Social-Feed
 Creating a scalable social media feed that handles complex states, real-time updates, and offline functionality while maintaining clean separation of concerns and testability.
 Twitter-like Social Media Feed Application
-Overview
-This is a Python implementation of a Twitter-like social media feed application that demonstrates:
 
-MVVM (Model-View-ViewModel) architecture
+Overview  
+This is a Python-based social media feed application similar to Twitter. It shows how to use:
 
-UI modularity and component reusability
+- MVVM (Model-View-ViewModel) architecture
+- UI modularity and reusable components
+- State management without third-party libraries
+- Reactive programming patterns
+- Clean separation of concerns
+- Test-ready architecture
 
-State management without third-party libraries
-
-Reactive programming patterns
-
-Clean separation of concerns
-
-Testable architecture
-
-Features
+Features  
 Feed Functionality:
 
-Display posts with text, images, and user information
-
-Pull-to-refresh capability
-
-Infinite scrolling
-
-Like posts functionality
-
-Create new posts
+- Display posts with text, images, and user information
+- Pull-to-refresh capability
+- Infinite scrolling
+- Like posts feature
+- Create new posts
 
 UI Modularity:
 
-Reusable feed item components
-
-Support for multiple post types (text, image, video)
-
-Plugin system for custom feed items
-
-Dynamic content handling
+- Reusable feed item components
+- Support for various post types (text, image, video)
+- Plugin system for custom feed items
+- Dynamic content handling
 
 Architecture:
 
-Pure MVVM implementation
+- Pure MVVM implementation
+- Observer pattern for reactive updates
+- Protocol-based repository pattern
+- Mock data layer for testing
 
-Observer pattern for reactive updates
-
-Protocol-based repository pattern
-
-Mock data layer for testing
-
-Architecture Diagram
-text
+Architecture Diagram  
+```
 ┌─────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
 │      View       │    │      ViewModel      │    │        Model        │
 │                 │    │                     │    │                     │
@@ -58,20 +44,22 @@ text
 │  - User input   │    │  - State management │    │  - Data operations  │
 │  - Observes VM  │    │  - Notifies View    │    │  - Repository       │
 └─────────────────┘    └─────────────────────┘    └─────────────────────┘
-Installation
-Clone the repository:
 
-bash
-git clone https://github.com/yourusername/social-media-feed.git
-cd social-media-feed
-Ensure you have Python 3.8+ installed
+Installation  
+Clone the repository:  
+```bash  
+git clone https://github.com/yourusername/social-media-feed.git  
+cd social-media-feed  
+```  
+Make sure you have Python 3.8 or higher installed.  
 
-Run the application:
+Run the application:  
+```bash  
+python main.py  
+```  
 
-bash
-python main.py
-Code Structure
-text
+Code Structure  
+```
 social-media-feed/
 │
 ├── main.py                # Application entry point
@@ -100,88 +88,78 @@ social-media-feed/
     ├── test_models.py
     ├── test_viewmodels.py
     └── test_views.py
-Key Components
-1. Model Layer
-Post: Data class representing a social media post
+```  
 
-User: Data class representing a user
+Key Components  
+1. Model Layer  
+   - Post: Data class for a social media post  
+   - User: Data class for a user  
+   - PostRepositoryProtocol: Interface for data operations  
+   - MockPostRepository: Implementation for demonstration  
 
-PostRepositoryProtocol: Interface for data operations
+2. ViewModel Layer  
+   - FeedViewModel: Manages feed state and logic  
+   - Observable: Base class for observable objects  
+   - Observer: Interface for observers  
 
-MockPostRepository: Implementation for demo purposes
+3. View Layer  
+   - FeedView: Renders the feed UI  
+   - PluginFeedView: Enhanced view with plugin support  
+   - FeedItemPlugin: Base class for post type plugins  
 
-2. ViewModel Layer
-FeedViewModel: Manages feed state and business logic
+Extending the Application  
+Adding New Post Types  
+Create a new plugin:  
+```python  
+class PollPostPlugin(FeedItemPlugin):  
+    def can_handle(self, post: Post) -> bool:  
+        return post.type == PostType.POLL  
+        
+    def render(self, post: Post):  
+        # Custom rendering for poll posts  
+        print(f"\n[POLL: {post.content}]")  
+```  
+Register the plugin when creating the view:  
+```python  
+plugins = [ImagePostPlugin(), VideoPostPlugin(), PollPostPlugin()]  
+view = PluginFeedView(view_model, plugins)  
+```  
 
-Observable: Base class for observable objects
+Implementing a Real Data Layer  
+Create a new repository:  
+```python  
+class DatabasePostRepository(PostRepositoryProtocol):  
+    def __init__(self, db_connection):  
+        self.db = db_connection  
+        
+    def fetch_posts(self, limit: int, offset: int) -> List[Post]:  
+        # Implement actual database query  
+        pass  
+```  
+Use it in your ViewModel:  
+```python  
+repository = DatabasePostRepository(db_connection)  
+view_model = FeedViewModel(repository)  
+```  
 
-Observer: Interface for observers
+Testing  
+Run tests with:  
+```bash  
+python -m unittest discover tests  
+```  
+The architecture is set up for easy testing:
 
-3. View Layer
-FeedView: Renders the feed UI
+- ViewModels can be tested with mock repositories
+- Views can be tested with mock ViewModels
+- Plugins can be tested on their own   
 
-PluginFeedView: Extended view with plugin support
+Future Enhancements  
+- Implement real UI with Tkinter, PyQt, or a web framework
+- Add an authentication layer
+- Implement real-time updates using WebSockets
+- Add offline support
+- Implement more interactions for posts (comments, shares)
+- Add user profiles and a following system
 
-FeedItemPlugin: Base class for post type plugins
-
-Extending the Application
-Adding New Post Types
-Create a new plugin:
-
-python
-class PollPostPlugin(FeedItemPlugin):
-    def can_handle(self, post: Post) -> bool:
-        return post.type == PostType.POLL
-    
-    def render(self, post: Post):
-        # Custom rendering for poll posts
-        print(f"\n[POLL: {post.content}]")
-Register the plugin when creating the view:
-
-python
-plugins = [ImagePostPlugin(), VideoPostPlugin(), PollPostPlugin()]
-view = PluginFeedView(view_model, plugins)
-Implementing a Real Data Layer
-Create a new repository:
-
-python
-class DatabasePostRepository(PostRepositoryProtocol):
-    def __init__(self, db_connection):
-        self.db = db_connection
-    
-    def fetch_posts(self, limit: int, offset: int) -> List[Post]:
-        # Implement actual database query
-        pass
-Use it in your ViewModel:
-
-python
-repository = DatabasePostRepository(db_connection)
-view_model = FeedViewModel(repository)
-Testing
-Run tests with:
-
-bash
-python -m unittest discover tests
-The architecture is designed for testability:
-
-ViewModels can be tested with mock repositories
-
-Views can be tested with mock ViewModels
-
-Plugins can be tested in isolation
-
-Future Enhancements
-Implement real UI with Tkinter/PyQt/web framework
-
-Add authentication layer
-
-Implement real-time updates with WebSockets
-
-Add offline persistence
-
-Implement more post interactions (comments, shares)
-
-Add user profiles and following system
-
-License
+License  
 MIT License
